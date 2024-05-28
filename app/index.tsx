@@ -1,51 +1,34 @@
 import { View, Text, StyleSheet, TextInput, Button } from "react-native";
 import React, { useContext, useState } from "react";
 import { storeData } from "@/lib/asyncStorage";
-import { todos, useGlobalContext } from "@/context/GlobalProvider";
+import { useGlobalContext } from "@/context/GlobalProvider";
 import { Redirect } from "expo-router";
-import { generateRandomId, generateRandomKey } from "@/helpers/createId";
-import Toast from "react-native-toast-message";
 
-const modal = () => {
+const index = () => {
   const [input, setInput] = useState("");
   const context = useGlobalContext();
+  if (context.user) return <Redirect href="/home" />;
 
   const handleSubmit = () => {
     const handleStorage = async () => {
-      const randomKey = generateRandomKey();
-
-      const newTask: todos = {
-        id: randomKey,
-        title: input,
-        completed: false,
-      };
-      const currentTasks = context.todos;
-      context.setTodos([...currentTasks, newTask]);
-      const item = JSON.stringify(newTask);
-      await storeData(randomKey, item);
-      setInput("");
+      await storeData("user", input);
     };
     handleStorage();
-    Toast.show({
-      type: "success",
-      text1: "Task added successfully!",
-    });
   };
   return (
     <View style={styles.container}>
       <TextInput
-        placeholder="Enter text"
+        placeholder="Enter name"
         value={input}
         onChangeText={setInput}
         style={styles.input}
       />
       <Button title="Submit" onPress={handleSubmit} />
-      <Toast />
     </View>
   );
 };
 
-export default modal;
+export default index;
 
 const styles = StyleSheet.create({
   container: {
@@ -55,10 +38,10 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
+    borderRadius: 20,
     borderColor: "gray",
     borderWidth: 1,
     marginBottom: 10,
     paddingHorizontal: 10,
-    borderRadius: 20,
   },
 });
